@@ -46,14 +46,48 @@ export const sendMessage = async (req, res) => {
         res.status(500).json({ message: "Failed to send message", error });
     }
 }
-export const getConversationsByUserId = async (req, res) => {
-    const { userId } = req.params;
+export const getLastMessages = async (req, res) => {
+
+    const { userId, partnerId } = req.params;
+
 
     try {
-        const conversations = await Conversation.find({ members: userId })
+        // Lấy tất cả các cuộc trò chuyện của người dùng
+        const conversations = await Conversation.find({
+            members: { $all: [userId, partnerId] }
+        })
+
+        const lastMessages = await Promise.all(conversations.map(async (conversation) => {
+            const lastMessage = await Message.findOne({ conversationId: conversation._id })
+                .sort({ createdAt: -1 })
+                .populate('sender') 
+                .populate('conversationId'); 
+
+            return {
+                conversationId: conversation._id,
+                lastMessage,
+            };
+        }));
+
+        res.status(200).json(lastMessages);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+export const getConversationsByUserId = async (req, res) => {
+    const { userId, partnerId } = req.params;
+
+    try {
+        const conversations = await Conversation.find({
+            members: { $all: [userId, partnerId] }
+        })
             .populate("members");
 
         res.status(200).json(conversations);
+
     } catch (error) {
         res.status(500).json({ message: "Failed to get conversations", error });
     }

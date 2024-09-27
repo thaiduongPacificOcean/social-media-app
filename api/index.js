@@ -7,6 +7,7 @@ import authRoute from "./routes/Auth.js";
 import usersRoute from "./routes/User.js";
 import postsRoute from "./routes/Post.js";
 import chatsRoute from "./routes/Chat.js";
+import notificationsRoute from "./routes/Notification.js";
 
 dotenv.config();
 const app = express();
@@ -33,6 +34,7 @@ app.use("/api/auth", authRoute);
 app.use("/api/users", usersRoute);
 app.use("/api/posts", postsRoute);
 app.use("/api/chats", chatsRoute);
+app.use("/api/notifications", notificationsRoute);
 
 app.get('/', (req, res) => {
   res.send('Hello Api');

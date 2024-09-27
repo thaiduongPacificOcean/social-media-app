@@ -4,6 +4,9 @@ import {
     deleteUser,
     getUser,
     getUsers,
+    followUser,
+    unfollowUser,
+    toggleFollowUser,
 } from "../controllers/User.js";
 import { verifyAdmin, verifyToken, verifyUser } from "../utils/verifyToken.js";
 
@@ -21,11 +24,7 @@ router.get("/checkadmin/:id", verifyAdmin, (req, res, next) => {
     const check = req.user.isAdmin;
     res.send("hello admin, you are logged in and you can delete all accounts " + check)
 })
-// Follow a user
-router.put('/follow/:id', followUser);
-
-// Unfollow a user
-router.put('/unfollow/:id', unfollowUser);
+router.put('/follow/:id/:userId', toggleFollowUser);
 
 //UPDATE
 router.put("/:id", verifyUser, updateUser);
@@ -34,7 +33,7 @@ router.put("/:id", verifyUser, updateUser);
 router.delete("/:id", verifyUser, deleteUser);
 
 //GET
-router.get("/:id", verifyUser, getUser);
+router.get("/:id", getUser);
 
 //GET ALL
 router.get("/", getUsers);

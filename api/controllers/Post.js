@@ -49,16 +49,17 @@ export const like = async (req, res) => {
         post.likes.push(userId);
         await post.save();
 
+
         // Create notification for like
 
         if (post.author._id.toString() !== userId) {
             await createNotification(
                 userId,
-                `${req.user.username} liked your post`,
+                'liked your post',
                 postId
             )
-        }
 
+        }
 
         res.status(200).json({
             success: true,
@@ -97,7 +98,7 @@ export const addComment = async (req, res) => {
         if (post.author._id.toString() !== userId) {
             await createNotification(
                 userId,
-                `${req.user.username} commented your post`,
+                `commented your post`,
                 postId
             )
         }
@@ -173,6 +174,55 @@ export const deletePost = async (req, res, next) => {
     try {
         await Post.findByIdAndDelete(req.params.id);
         res.status(200).json("Post has been deleted.");
+    } catch (err) {
+        next(err);
+    }
+}
+export const getPostbyUserId = async (req, res, next) => {
+    const userId = req.params.userId;
+    try {
+        const post = await Post.find(
+            {
+                author: userId,
+                $or: [
+                    { video: { $exists: true, $ne: null, $ne: "", $type: "string" } },
+                    { image: { $exists: true, $ne: null, $ne: "", $type: "string" } }
+                ]
+            }
+        ).sort({ createdAt: -1 });
+        res.status(200).json(post);
+    } catch (err) {
+        next(err);
+    }
+}
+export const getPostTypeImagebyUserId = async (req, res, next) => {
+    const userId = req.params.userId;
+    try {
+        const post = await Post.find(
+            {
+                author: userId,
+                $or: [
+                    { image: { $exists: true, $ne: null, $ne: "", $type: "string" } }
+                ]
+            }
+        ).sort({ createdAt: -1 });
+        res.status(200).json(post);
+    } catch (err) {
+        next(err);
+    }
+}
+export const getPostTypeVideobyUserId = async (req, res, next) => {
+    const userId = req.params.userId;
+    try {
+        const post = await Post.find(
+            {
+                author: userId,
+                $or: [
+                    { video: { $exists: true, $ne: null, $ne: "", $type: "string" } }
+                ]
+            }
+        ).sort({ createdAt: -1 });
+        res.status(200).json(post);
     } catch (err) {
         next(err);
     }
